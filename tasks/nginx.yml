@@ -11,8 +11,8 @@
     - nginx
     - libsemanage-python
 
-- name: Set SELinux to permit nginx to connect to TCP ports
-  seboolean: name=httpd_can_network_connect state=yes persistent=yes
+#- name: Set SELinux to permit nginx to connect to TCP ports
+  #seboolean: name=httpd_can_network_connect state=yes persistent=yes
 
 # Here we store some files that we should include inside our site configurations.
 - name: Create nginx includes directory
@@ -28,10 +28,16 @@
   copy: src="includes/ssl-settings.conf" dest=/etc/nginx/includes/ssl-settings.conf mode="0640"
         group=root owner=root force=yes
 
-- name: Copy configuration files
-  copy: src="conf.d/{{ item }}.conf" dest=/etc/nginx/conf.d/ mode="0640"
-        group=root owner=root force=yes
+#- name: Copy configuration files
+#  copy: src="conf.d/{{ item }}.conf" dest=/etc/nginx/conf.d/ mode="0640"
+      #  group=root owner=root force=yes
+#  with_items: nginx_sites
+
+
+- name: Creates configuration files
+  template: src=conf.d/template.conf dest=/etc/nginx/conf.d/{{ item.name }}.conf mode="0640"
   with_items: nginx_sites
+  notify: Restart nginx
 
 - name: Create dhparam file for more secure SSL
   shell: openssl dhparam -out /etc/nginx/dhparam.pem 2048
@@ -45,7 +51,7 @@
         group=root owner=root force=yes
 
 - name: Check and request missing certificates
-  shell: /root/certs-checks-gets.sh "{{ ansible_ssh_host }}"
+  shell: /root/certs-checks-gets.sh
 
 - name: Enable and start nginx service
-  service: name=nginx state=reloaded enabled=yes
+  service: name=nginx enabled=yes

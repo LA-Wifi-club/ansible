@@ -1,0 +1,8 @@
+# Restart NGINX
+- name: Restart nginx
+  become: no
+  command: "service nginx restart"
+
+- name: Restart cron
+  become: no
+  command: "systemctl reload crond"

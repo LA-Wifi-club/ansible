@@ -1,11 +1,12 @@
 # This role install's acmetool and restores its keys and certificates.
 
-- name: install libcap-devel, bzip2 and gzip
+- name: install libcap-devel, bzip2 gzip, and libselinux-python
   yum: name="{{ item }}" state=latest
   with_items:
     - libcap-devel
     - bzip2
     - gzip
+    - libselinux-python
 
 - name: Download acmetool
   get_url: url=https://github.com/hlandau/acme/releases/download/v0.0.45/acmetool-v0.0.45-linux_amd64.tar.gz
@@ -47,12 +48,9 @@
 - name: Copy acmetool response file to acme directory
   copy: src=acmetool/response-file.yml dest=/var/lib/acme/conf/responses
         owner=root group=root mode=0644
+  notify: Reload cron
 
 - name: Install acmetool reconcile cron job
   copy: src=acmetool/acmetool.cron dest=/etc/cron.d/acmetool
         owner=root group=root mode=0644
-  tags: debug-le-cron
-
-- name: Reload cron to load new job
-  command: systemctl reload crond
   tags: debug-le-cron

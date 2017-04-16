@@ -1,4 +1,4 @@
-# Landoop Ansible Roles
+# LA-WiFi Ansible Roles
 
 In this repository we share some of our ansible roles that we think may be of interest.
 

@@ -3,12 +3,12 @@
 # Copyright 2015, Landoop LTD, Marios Andreopoulos.
 # BSD license, check repository's top directory.
 
-EXTERNALIP="$1"
+EXTERNALIP=$(hostname -i)
 declare -a WITHOUTCERT
 declare -a WITHOUTCERTCONF
 CUR=0
 
-if [ -z "$1" ]; then
+if [ -z "$EXTERNALIP" ]; then
     echo "No external IP provided."
     exit 1
 fi
@@ -25,7 +25,7 @@ for i in /etc/nginx/conf.d/*.conf; do
 
         # Check if server has DNS records
         if host -4 -t A "$SERVER" > /dev/null; then
-            ARECORD="$(host -4 -t A "$SERVER" | cut -d " " -f 4)"
+            ARECORD="$(host -4 -t A "$SERVER" | cut -d " " -f 4 | grep -v alias)"
 
             # Check if our external IP matches the DNS records for this server
             if [ "$ARECORD" == "$EXTERNALIP" ]; then
